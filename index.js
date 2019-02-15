@@ -1,13 +1,23 @@
+let canvas, gl;
+
+
 function main() {
-    let canvas = document.querySelector("#glCanvas");
-    let gl = canvas.getContext("webgl2");
+    canvas = document.querySelector("#glCanvas");
+    gl = canvas.getContext("webgl2");
 
     if (gl == null) {
         alert("Unable to initialize WebGl2");
         return;
     }
+
     const shaderProgram = glUtils.initShaderProgram(gl);
     gl.useProgram(shaderProgram);
+
+    var uniforms = {
+        viewportDimesions: gl.getUniformLocation(shaderProgram, 'viewportDimensions'),
+    };
+    var vpDimesions = [canvas.width, canvas.height];
+
 
     var verticies = [
         -1, 1,
@@ -30,13 +40,15 @@ function main() {
     function draw() {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
+
+        gl.uniform2fv(uniforms.viewportDimesions, vpDimesions);
+
         gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-        requestAnimationFrame(draw);
+
     }
 
     draw();
-    requestAnimationFrame(draw);
 }
 
 main();
