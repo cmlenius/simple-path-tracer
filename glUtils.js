@@ -14,11 +14,12 @@ const fsSource =
     precision highp float;
     
     uniform vec2 viewportDimensions;
+    uniform vec3 lookFrom;
     out vec4 outColor;
  
     #define PI 3.14159265359
     #define MAX_FLOAT 1e5
-    #define MAX_RECURSION 10
+    #define MAX_RECURSION 5
     #define LAMBERTIAN 0
     #define METAL 1
     #define DIELECTRIC 2
@@ -50,6 +51,7 @@ const fsSource =
     struct sphere {
         vec3 center;
         float radius;
+        material mat;
     };
     
     /* 
@@ -70,7 +72,7 @@ const fsSource =
         do {
            p = 2.0*vec3(rand(),rand(),rand()) - vec3(1.0);
              count++;
-             if (count >= 1000) return vec3(0.5);
+             if (count >= 100) return vec3(0.5);
         } while (p.x*p.x + p.y*p.y + p.z*p.z >= 1.0);
         count = 0;
         return p;
@@ -176,31 +178,51 @@ const fsSource =
       return false;
     }
     
-    bool hit_world(const in ray r, in float t_min, in float t_max, inout hit_record rec) {
+
+    bool hit_world(const in ray r, const in sphere[4] objects, in float t_min, in float t_max, inout hit_record rec) {
         rec.t = t_max;
         bool hit = false;
-        
-        if ( hit_sphere(sphere(vec3(0.0,-100.5,-1.0),100.0), r, t_min, rec.t, rec) ) {
-          hit = true;
-          rec.mat = material(METAL, vec3(.2,.2,.2), .1);
-        } 
-        
-        if ( hit_sphere(sphere(vec3(0.0,1.0,-1.0), 0.5), r, t_min, rec.t, rec) ) {
-          hit = true;
-          rec.mat = material(METAL, vec3(.1,.2,.5), .0);
-        } 
-        
-        if ( hit_sphere(sphere(vec3(1.0,0.0,-1.0), 0.5), r, t_min, rec.t, rec) ) {
-          hit = true;
-          rec.mat = material(METAL, vec3(.2,.5,.2), .0);
-        } 
-        
-        if ( hit_sphere(sphere(vec3(-1.0,0.0,-1.0), 0.5), r, t_min, rec.t, rec) ) {
-          hit = true;
-          rec.mat = material(METAL, vec3(0.7, 0.2, 0.2), .0);
+
+        for(int i=0; i<objects.length(); i++) {
+            if (hit_sphere(objects[i], r, t_min, rec.t, rec)) {
+                hit = true;
+                rec.mat = objects[i].mat;
+            }
         }
- 
-        /*
+        
+        return hit;
+    }
+    
+    vec3 color(in ray r, in sphere[4] objects) {
+        vec3 col = vec3(1.0);  
+        hit_record rec;
+        
+        for (int i=0; i<MAX_RECURSION; i++) {
+            if (hit_world(r, objects, 0.001, MAX_FLOAT, rec)) {
+        	    ray scattered;
+        	    vec3 attenuation;
+        	    if (mat_scatter(r, rec, attenuation, scattered)) {
+        	        col *= attenuation;
+        	        r = scattered;
+        	    } else {
+        	        return vec3(.0);
+        	    }
+            } else {
+                float t = 0.5 * r.direction.y + 0.5;
+                col *= mix(vec3(1.0),vec3(0.5,0.7,1.0), t);
+                return col;
+        	}
+        }
+        return col;
+    }
+    
+    sphere[4] gen_objects() {
+        sphere objects[4];
+        objects[0] = sphere(vec3(0.0, -100.5, -1.0), 100.0, material(METAL, vec3(0.2, 0.2, 0.2), 0.05));
+        objects[1] = sphere(vec3(1.0, 0.0, -1.0), 0.5, material(METAL, vec3(0.7, 0.2, 0.2), 0.0));
+        objects[2] = sphere(vec3(0.0, 1.0, -0.5), 0.5, material(METAL, vec3(0.2, 0.7, 0.2), 0.0));
+        objects[3] = sphere(vec3(-1.0, 0.0, -0.3), 0.5, material(METAL, vec3(0.2, 0.2, 0.7), 0.0));
+        /* 
         for(int a=-2; a<2; a++) {
             for(int b=-2; b<2; b++) {
                 float rand_mat = rand();
@@ -226,34 +248,10 @@ const fsSource =
                 }
             }
         }
-        */
-        
-        return hit;
+        */ 
+        return objects;
     }
-    
-    vec3 color(in ray r) {
-        vec3 col = vec3(1.0);  
-        hit_record rec;
-        
-        for (int i=0; i<MAX_RECURSION; i++) {
-            if (hit_world(r, 0.001, MAX_FLOAT, rec)) {
-        	    ray scattered;
-        	    vec3 attenuation;
-        	    if (mat_scatter(r, rec, attenuation, scattered)) {
-        	        col *= attenuation;
-        	        r = scattered;
-        	    } else {
-        	        return vec3(.0);
-        	    }
-            } else {
-                float t = 0.5 * r.direction.y + 0.5;
-                col *= mix(vec3(1.0),vec3(0.5,0.7,1.0), t);
-                return col;
-        	}
-        }
-        return col;
-    }
-    
+
     ray get_ray(in camera cam, in vec2 uv) {
         return ray(cam.origin, normalize(cam.lower_left_corner + uv.x*cam.horizontal + uv.y*cam.vertical - cam.origin));
     }
@@ -281,17 +279,19 @@ const fsSource =
     void main() {
         float nx = viewportDimensions.x;
         float ny = viewportDimensions.y;
-        float ns = 300.0;
+        float ns = 100.0;
         
-        camera cam = get_camera(vec3(-0.5, 1.0, 2.0), vec3(0.0,0.0,-1.0), vec3(0.0,0.5,0.0), 90.0, nx/ny);
+        camera cam = get_camera(vec3(0.5,1.0,2.0), vec3(0.0,0.0,-1.0), vec3(0.0,0.5,0.0), 90.0, nx/ny);
         vec3 col = vec3(0.0);
+
+        sphere objects[4] = gen_objects();
         
         for (int s=0; s<int(ns); s++) {
             float u = (gl_FragCoord.x + rand()) / nx;
             float v = (gl_FragCoord.y + rand()) / ny;
             ray r = get_ray(cam, vec2(u,v));
            
-            col += color(r);
+            col += color(r, objects);
          }
          
         col = vec3(sqrt(col.x/ns), sqrt(col.y/ns), sqrt(col.z/ns));
