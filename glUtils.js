@@ -220,8 +220,8 @@ const fsSource =
         sphere objects[4];
         objects[0] = sphere(vec3(0.0, -100.5, -1.0), 100.0, material(METAL, vec3(0.2, 0.2, 0.2), 0.05));
         objects[1] = sphere(vec3(1.0, 0.0, -1.0), 0.5, material(METAL, vec3(0.7, 0.2, 0.2), 0.0));
-        objects[2] = sphere(vec3(0.0, 1.0, -0.5), 0.5, material(METAL, vec3(0.2, 0.7, 0.2), 0.0));
-        objects[3] = sphere(vec3(-1.0, 0.0, -0.3), 0.5, material(METAL, vec3(0.2, 0.2, 0.7), 0.0));
+        objects[2] = sphere(vec3(0.0, 0.0, -1.0), 0.5, material(METAL, vec3(0.2, 0.7, 0.2), 0.0));
+        objects[3] = sphere(vec3(-1.0, 0.0, -1.0), 0.5, material(METAL, vec3(0.2, 0.2, 0.7), 0.0));
         /* 
         for(int a=-2; a<2; a++) {
             for(int b=-2; b<2; b++) {
@@ -257,21 +257,21 @@ const fsSource =
     }
     
     camera get_camera(in vec3 lookfrom, in vec3 lookat, in vec3 vup, in float vfov, in float aspect) {
-        vec3 u, v, w;
+        vec3 x, y, z;
         camera cam;
         
         float theta = vfov * PI/180.0;
         float half_height = tan(theta/2.0);
         float half_width = aspect * half_height;
         
-        w = normalize(lookfrom - lookat);
-        u = normalize(cross(vup, w));
-        v = cross(w, u);
+        z = normalize(lookfrom - lookat);
+        x = normalize(cross(vup, z));
+        y = cross(z, x);
         
         cam.origin = lookfrom;
-        cam.lower_left_corner = cam.origin - half_width*u - half_height*v - w;
-        cam.horizontal = 2.0 * half_width * u;
-        cam.vertical = 2.0 * half_height * v;
+        cam.lower_left_corner = cam.origin - half_width*x - half_height*y - z;
+        cam.horizontal = 2.0 * half_width * x;
+        cam.vertical = 2.0 * half_height * y;
         
         return cam;
     }
@@ -279,9 +279,9 @@ const fsSource =
     void main() {
         float nx = viewportDimensions.x;
         float ny = viewportDimensions.y;
-        float ns = 100.0;
+        float ns = 2.0;
         
-        camera cam = get_camera(vec3(0.5,1.0,2.0), vec3(0.0,0.0,-1.0), vec3(0.0,0.5,0.0), 90.0, nx/ny);
+        camera cam = get_camera(lookFrom, vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90.0, nx/ny);
         vec3 col = vec3(0.0);
 
         sphere objects[4] = gen_objects();

@@ -1,4 +1,4 @@
-let canvas, gl;
+let canvas = document.querySelector("#glCanvas");
 const verticies = [
     -1, 1,
     -1, -1,
@@ -9,11 +9,11 @@ const verticies = [
     1, -1
 ];
 
+let mouseDown = false;
 let rotation = 0.0;
 
 function main() {
-    canvas = document.querySelector("#glCanvas");
-    gl = canvas.getContext("webgl2");
+    let gl = canvas.getContext("webgl2");
 
     if (gl == null) {
         alert("Unable to initialize WebGl2");
@@ -37,23 +37,51 @@ function main() {
     gl.enableVertexAttribArray(vPosAttrib);
 
     var vpDimesions = [canvas.width, canvas.height];
-    var lookfrom = [-0.5,1.0,2.0];
     gl.uniform2fv(uniforms.viewportDimesions, vpDimesions);
-    gl.uniform3fv(uniforms.lookFrom, lookfrom);
-
-
    
     function draw() {
-        rotation += 1.0;
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
+
+        let radius = 2.0;
+        let camx = Math.sin(rotation) * radius;
+        let camy = Math.cos(rotation) * radius;
+        let lookfrom = [camx, 0.0, camy];
        
         gl.uniform3fv(uniforms.lookFrom, lookfrom);
        
         gl.drawArrays(gl.TRIANGLES, 0, 6);
- //       requestAnimationFrame(draw); 
+        // requestAnimationFrame(draw); 
     }
    
     requestAnimationFrame(draw); 
 }
+
+
+window.addEventListener("mousedown", function() {
+    mouseDown = true;
+});
+
+let px = 0;
+window.addEventListener("mousemove", function(e) {
+    if (mouseDown) {
+        if(e.clientX >= px) {
+            rotation -= 0.07;
+        } else {
+            rotation += 0.07;
+        }
+        px = e.clientX;
+    }
+});
+
+window.addEventListener("mouseup", function() {
+    mouseDown = false;
+});
+
 main();
+
+
+
+
+
+
