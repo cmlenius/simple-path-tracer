@@ -14,7 +14,7 @@ const fsSource =
     precision highp float;
     
     uniform vec2 viewportDimensions;
-    uniform vec3 lookFrom;
+    uniform vec3 eye;
     out vec4 outColor;
  
     #define PI 3.14159265359
@@ -218,10 +218,10 @@ const fsSource =
     
     sphere[4] gen_objects() {
         sphere objects[4];
-        objects[0] = sphere(vec3(0.0, -100.5, -1.0), 100.0, material(METAL, vec3(0.2, 0.2, 0.2), 0.05));
-        objects[1] = sphere(vec3(1.0, 0.0, -1.0), 0.5, material(METAL, vec3(0.7, 0.2, 0.2), 0.0));
-        objects[2] = sphere(vec3(0.0, 0.0, -1.0), 0.5, material(METAL, vec3(0.2, 0.7, 0.2), 0.0));
-        objects[3] = sphere(vec3(-1.0, 0.0, -1.0), 0.5, material(METAL, vec3(0.2, 0.2, 0.7), 0.0));
+        // objects[0] = sphere(vec3(0.0, -100.5, -1.0), 100.0, material(METAL, vec3(0.2, 0.2, 0.2), 0.05));
+        objects[1] = sphere(vec3(1.0, 0.0, 0.0), 0.5, material(METAL, vec3(0.7, 0.2, 0.2), 0.0));
+        objects[2] = sphere(vec3(0.0, 0.0, 0.0), 0.5, material(METAL, vec3(0.2, 0.7, 0.2), 0.0));
+        objects[3] = sphere(vec3(-1.0, 0.0, 0.0), 0.5, material(METAL, vec3(0.2, 0.2, 0.7), 0.0));
         /* 
         for(int a=-2; a<2; a++) {
             for(int b=-2; b<2; b++) {
@@ -256,7 +256,7 @@ const fsSource =
         return ray(cam.origin, normalize(cam.lower_left_corner + uv.x*cam.horizontal + uv.y*cam.vertical - cam.origin));
     }
     
-    camera get_camera(in vec3 lookfrom, in vec3 lookat, in vec3 vup, in float vfov, in float aspect) {
+    camera get_camera(in vec3 eye, in vec3 lookat, in vec3 vup, in float vfov, in float aspect) {
         vec3 x, y, z;
         camera cam;
         
@@ -264,11 +264,11 @@ const fsSource =
         float half_height = tan(theta/2.0);
         float half_width = aspect * half_height;
         
-        z = normalize(lookfrom - lookat);
+        z = normalize(eye - lookat);
         x = normalize(cross(vup, z));
         y = cross(z, x);
         
-        cam.origin = lookfrom;
+        cam.origin = eye;
         cam.lower_left_corner = cam.origin - half_width*x - half_height*y - z;
         cam.horizontal = 2.0 * half_width * x;
         cam.vertical = 2.0 * half_height * y;
@@ -281,7 +281,7 @@ const fsSource =
         float ny = viewportDimensions.y;
         float ns = 2.0;
         
-        camera cam = get_camera(lookFrom, vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90.0, nx/ny);
+        camera cam = get_camera(eye, vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90.0, nx/ny);
         vec3 col = vec3(0.0);
 
         sphere objects[4] = gen_objects();

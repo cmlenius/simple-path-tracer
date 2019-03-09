@@ -10,7 +10,10 @@ const verticies = [
 ];
 
 let mouseDown = false;
-let rotation = 0.0;
+let zoomZ = 2.5;
+let angleX = 0.0;
+let angleY = 0.0;
+let px, py;
 
 function main() {
     let gl = canvas.getContext("webgl2");
@@ -25,7 +28,7 @@ function main() {
 
     let uniforms = {
         viewportDimesions: gl.getUniformLocation(shaderProgram, 'viewportDimensions'),
-        lookFrom: gl.getUniformLocation(shaderProgram, 'lookFrom'),
+        eye: gl.getUniformLocation(shaderProgram, 'eye'),
     };
 
     var vertexBuffer = gl.createBuffer();
@@ -43,45 +46,42 @@ function main() {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        let radius = 2.0;
-        let camx = Math.sin(rotation) * radius;
-        let camy = Math.cos(rotation) * radius;
-        let lookfrom = [camx, 0.0, camy];
+        let ex = zoomZ * Math.sin(angleY) * Math.cos(angleX);
+        let ey = zoomZ * Math.sin(angleX);
+        let ez = zoomZ * Math.cos(angleY) * Math.cos(angleX);
        
-        gl.uniform3fv(uniforms.lookFrom, lookfrom);
+        gl.uniform3fv(uniforms.eye, [ex, ey, ez]);
        
         gl.drawArrays(gl.TRIANGLES, 0, 6);
-        // requestAnimationFrame(draw); 
+       requestAnimationFrame(draw); 
     }
    
     requestAnimationFrame(draw); 
 }
 
 
-window.addEventListener("mousedown", function() {
+window.addEventListener("mousedown", function(e) {
     mouseDown = true;
+    px = e.clientX;
+    py = e.clientY;
 });
 
-let px = 0;
 window.addEventListener("mousemove", function(e) {
     if (mouseDown) {
-        if(e.clientX >= px) {
-            rotation -= 0.07;
-        } else {
-            rotation += 0.07;
-        }
+        angleY -= (e.clientX - px) * 0.01;
+        angleX += (e.clientY - py) * 0.01;
+
+        angleX = Math.max(angleX, -Math.PI/2 + 0.01);
+        angleX = Math.min(angleX, Math.PI/2 - 0.01);
+        
         px = e.clientX;
+        py = e.clientY;
     }
 });
 
-window.addEventListener("mouseup", function() {
+window.addEventListener("mouseup", function(e) {
     mouseDown = false;
 });
 
 main();
-
-
-
-
-
 
