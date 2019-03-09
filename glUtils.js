@@ -15,6 +15,7 @@ const fsSource =
     
     uniform vec2 viewportDimensions;
     uniform vec3 eye;
+    uniform float sampleCount;
     out vec4 outColor;
  
     #define PI 3.14159265359
@@ -216,9 +217,9 @@ const fsSource =
         return col;
     }
     
-    sphere[4] gen_objects() {
+    sphere[4] create_scene() {
         sphere objects[4];
-        // objects[0] = sphere(vec3(0.0, -100.5, -1.0), 100.0, material(METAL, vec3(0.2, 0.2, 0.2), 0.05));
+        objects[0] = sphere(vec3(0.0, -100.5, -1.0), 100.0, material(METAL, vec3(0.2, 0.2, 0.2), 0.05));
         objects[1] = sphere(vec3(1.0, 0.0, 0.0), 0.5, material(METAL, vec3(0.7, 0.2, 0.2), 0.0));
         objects[2] = sphere(vec3(0.0, 0.0, 0.0), 0.5, material(METAL, vec3(0.2, 0.7, 0.2), 0.0));
         objects[3] = sphere(vec3(-1.0, 0.0, 0.0), 0.5, material(METAL, vec3(0.2, 0.2, 0.7), 0.0));
@@ -279,12 +280,12 @@ const fsSource =
     void main() {
         float nx = viewportDimensions.x;
         float ny = viewportDimensions.y;
-        float ns = 2.0;
+        float ns = sampleCount;
         
         camera cam = get_camera(eye, vec3(0.0,0.0,0.0), vec3(0.0,1.0,0.0), 90.0, nx/ny);
         vec3 col = vec3(0.0);
 
-        sphere objects[4] = gen_objects();
+        sphere objects[4] = create_scene();
         
         for (int s=0; s<int(ns); s++) {
             float u = (gl_FragCoord.x + rand()) / nx;
