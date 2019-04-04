@@ -1,5 +1,24 @@
 html, body {
-    margin: 0px;
-    padding: 0px;
-    position: absolute;
+    margin: 0;
+    padding: 30px;
+}
+
+canvas {
+}
+
+
+.container {
+    margin: auto;
+    padding: 0 50px;
+    max-width: 640px;
+    clear: both;
+    text-align: center;
+}
+
+.container h1 {
+    text-align: center;
+}
+
+.container p {
+    text-align: left;
 }

@@ -6,7 +6,25 @@
   </head>
    
   <body>
-    <canvas id="glCanvas" width="800px" height="600px"> Canvas not supported on this browser! </canvas>
+    <div class="container">
+      <h1> Simple Path Tracer </h1>
+      <p>
+        Path tracing is a rendering technique for generating an image by tracing the path of light for each pixel in
+        the image plane while simulating various effects such as reflections and refractions of different surface
+        materials
+      </p>
+      <p> Drag the mouse to play with the camera. </p>
+      <canvas id="glCanvas" width="512px" height="512px"> Canvas not supported on this browser! </canvas>
+      <p>
+        The Path Tracer itself is written in the fragment shader (glsl) and uses WebGL for realtime performance.
+        In order to have realtime performance, upon rending an image the path tracer will use very few samples
+        (hence the grainy look) and increase the samples used when the scene is still (no camera movement) thus
+        creating a clean image. This is currently a work in progress as there are many features I would like to
+        add to the current project such as being able to tweak the scene. I referenced "Ray tracing in one weekend"
+        by Peter Shirley as a starting point.
+      </p>
+      <a href="https://github.com/cmlenius/simple-path-tracer">See the code here...</a>
+    </div>
   </body>
 
   <script src="gl-matrix.js"></script>
