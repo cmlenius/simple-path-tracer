@@ -85,7 +85,7 @@ window.addEventListener("mousemove", function(e) {
         angleY -= (e.clientX - px) * 0.01;
         angleX += (e.clientY - py) * 0.01;
 
-        angleX = Math.max(angleX, -Math.PI/2 + 0.01);
+        angleX = Math.max(angleX, 0.01);
         angleX = Math.min(angleX, Math.PI/2 - 0.01);
         
         px = e.clientX;
