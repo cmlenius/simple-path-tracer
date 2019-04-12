@@ -24,7 +24,7 @@ const fsSource =
     #define LAMBERTIAN 0
     #define METAL 1
     #define DIELECTRIC 2
-    #define MAX_OBJECTS 4
+    #define MAX_OBJECTS 5
      
     /*
      * STRUCTS
@@ -220,10 +220,11 @@ const fsSource =
     
     sphere[MAX_OBJECTS] create_scene() {
         sphere objects[MAX_OBJECTS];
-        objects[0] = sphere(vec3(0.0, -100.5, -1.0), 100.0, material(METAL, vec3(0.2, 0.2, 0.2), 0.05));
-        objects[1] = sphere(vec3(1.0, 0.0, 0.0), 0.5, material(METAL, vec3(0.7, 0.2, 0.2), 0.0));
-        objects[2] = sphere(vec3(0.0, 1.0, 0.0), 0.5, material(METAL, vec3(0.2, 0.7, 0.2), 0.0));
-        objects[3] = sphere(vec3(-1.0, 0.0, 0.0), 0.5, material(METAL, vec3(0.2, 0.2, 0.7), 0.0));
+        objects[0] = sphere(vec3(0.0, -100.5, -1.0), 100.0, material(LAMBERTIAN , vec3(0.2, 0.2, 0.2), 0.05));
+        objects[1] = sphere(vec3(-0.866, 0.0, 0.5), 0.5, material(METAL, vec3(0.7, 0.2, 0.2), 0.0));
+        objects[2] = sphere(vec3(0.0, 0.0, -1.0), 0.5, material(METAL, vec3(0.2, 0.7, 0.2), 0.0));
+        objects[3] = sphere(vec3(0.866, 0.0, 0.5), 0.5, material(METAL, vec3(0.2, 0.2, 0.7), 0.0));
+        objects[4] = sphere(vec3(0.0, 1.0, 0.0), 0.5, material(METAL, vec3(0.5, 0.5, 0.5), 0.0));
          
         /* 
         for(int a=-2; a<2; a++) {
