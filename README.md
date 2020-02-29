@@ -1,1 +1,1 @@
-https://cmlenius.github.io/ascii-trail
+https://cmlenius.github.io/simple-path-tracer/
